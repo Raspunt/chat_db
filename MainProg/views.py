@@ -84,6 +84,42 @@ def create_userPost(request):
 
 
 
+def isUserAutificated(request):
+
+    if request.method == "POST":
+
+        print(request.POST)
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+
+        if username != None and password != None:
+
+            if User.objects.filter(username=username).exists():
+                
+                user = User.objects.get(username=username)
+
+                if user.check_password(password):
+                    return HttpResponse("пароль  правельный ")
+                else :
+                    return HttpResponse("пароль не правельный")
+
+               
+            else :
+
+                return HttpResponse("пользователь не существует")
+
+
+        else:
+
+             return HttpResponse("нету информации у пользователя")
+
+
+
+
+
+
+
 
 
 def startThread(request):
