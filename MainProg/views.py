@@ -1,6 +1,5 @@
 import json
 import datetime 
-from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.contrib.auth.models import User
@@ -8,6 +7,8 @@ from . models import Message
 
 from . parserNews.News import startUpdateNewsThread
 from . parserNews.News import pwdJson
+
+
 
 
 def get_NewsJson(request):
@@ -31,10 +32,15 @@ def get_NewsJson(request):
 def create_message(request):
 
     if request.method == "POST" :
-        print(request.POST,"it was here")
+        print(request.POST,f"\n{request.COOKIES}")
 
         username = request.POST.get("username")
         text = request.POST.get("text")
+
+        if username == "" and text == "":    
+            return HttpResponse("параменты username,text пустые ")
+
+
 
         if User.objects.filter(username=username).exists() :
             print("User exists")
@@ -46,14 +52,37 @@ def create_message(request):
             message = Message(autor=user,text=text)
             message.save()
 
+            return HttpResponse("сообщение готово")
+
 
 
         else :
-            print("net")
-            # User.objects.create_user(username,"mail@ru","password1")
+            
+            
+            return HttpResponse(f"создать пользователя? \nusername {username} ")
+
+    elif (request.method == "GET"):
+        return HttpResponse("GET запрос")
 
 
-    return HttpResponse("сообщение готово")
+
+def create_userPost(request):
+
+    if request.method == "POST":
+
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        if username != None and password != None:
+
+            User.objects.create_user(username=username,
+                password=password)
+
+            return HttpResponse("Успешный успех")
+
+    return HttpResponse("прошел запрос")
+
+
 
 
 
