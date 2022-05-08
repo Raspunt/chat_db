@@ -2,8 +2,11 @@ import json
 import datetime 
 from django.http import HttpResponse
 from django.http import JsonResponse
+from django.core import serializers
 from django.contrib.auth.models import User
+
 from . models import Message
+from . models import Chat
 
 from . parserNews.News import startUpdateNewsThread
 from . parserNews.News import pwdJson
@@ -93,29 +96,40 @@ def isUserAutificated(request):
         password = request.POST.get("password")
 
 
-        if username != None and password != None:
+        if username != "" and password != "":
 
             if User.objects.filter(username=username).exists():
                 
                 user = User.objects.get(username=username)
 
                 if user.check_password(password):
-                    return HttpResponse("пароль  правельный ")
+                    print("пароль правильный")
+                    return HttpResponse("passwordRight")
                 else :
-                    return HttpResponse("пароль не правельный")
+                    print("пароль не правильный")
+                    return HttpResponse("passwordWrong")
 
                
             else :
 
-                return HttpResponse("пользователь не существует")
+                return HttpResponse("UserNotExists")
 
 
         else:
 
-             return HttpResponse("нету информации у пользователя")
+             return HttpResponse("DataNotFound")
 
 
 
+def get_ChatJson(request):
+
+    if request.method == "POST":
+        data = serializers.serialize("json", Chat.objects.all())
+        data += serializers.serialize("json",Messa)
+    
+        return HttpResponse(data, content_type="text/json-comment-filtered")
+
+    return HttpResponse("я хз")
 
 
 
