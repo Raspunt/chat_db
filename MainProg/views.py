@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.core import serializers
 from django.contrib.auth.models import User
 
+
 from . models import Message
 from . models import Chat
 
@@ -124,22 +125,64 @@ def isUserAutificated(request):
 def get_ChatJson(request):
 
     if request.method == "POST":
-        data = serializers.serialize("json", Chat.objects.all())
-        data += serializers.serialize("json",Messa)
-    
-        return HttpResponse(data, content_type="text/json-comment-filtered")
+        
+        
+        chats = Chat.objects.all()
+        
+
+        chatsList = []
+
+        for ch in chats:
+            DistData = {}
+            DistData[f"chat_id"] = ch.id
+            DistData[f"chat_title"] = ch.title
+            DistData[f"chat_disc"] = ch.disc
+
+            chatsList.append(DistData)
+
+            
+
+            # for mes in ch.messages.all():
+            #     mesArr.append(f"{mes.id} {mes.autor} {mes.text}")
+
+            # DistData["messages"] = mesArr
+
+        JsonData = json.dumps(chatsList)        
+
+        return HttpResponse(JsonData, content_type="application/json")
 
     return HttpResponse("я хз")
 
 
 
 
+def get_messagesByChat_ID(request):
+
+
+    if request.method == "POST":
+        chat = Chat.objects.all()
+
+        mesArr = []
+
+
+        for mes in chat.messages.all():
+            MesData = {}
+
+            MesData["author"] = mes.autor
+            MesData["text"] = mes.text
+            mesArr.append(MesData)
+
+        
+        JsonData = json.dumps(chatsList)        
+
+
+        return HttpResponse(JsonData, content_type="application/json")
+
 
 
 def startThread(request):
 
     startUpdateNewsThread()
-
 
 
 
