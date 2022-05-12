@@ -36,25 +36,26 @@ def get_NewsJson(request):
 def create_message(request):
 
     if request.method == "POST" :
-        print(request.POST,f"\n{request.COOKIES}")
 
+        chat_id = request.POST.get("chat_id")
         username = request.POST.get("username")
         text = request.POST.get("text")
 
-        if username == "" and text == "":    
+
+        if username == "" and text == "" and chat_id == "":    
             return HttpResponse("параменты username,text пустые ")
 
 
 
         if User.objects.filter(username=username).exists() :
-            print("User exists")
 
             user = User.objects.get(username=username)
 
-            print(user)
 
             message = Message(autor=user,text=text)
             message.save()
+
+            # Chat.messages.add(message)
 
             return HttpResponse("сообщение готово")
 
@@ -92,7 +93,6 @@ def isUserAutificated(request):
 
     if request.method == "POST":
 
-        print(request.POST)
         username = request.POST.get("username")
         password = request.POST.get("password")
 
@@ -104,10 +104,8 @@ def isUserAutificated(request):
                 user = User.objects.get(username=username)
 
                 if user.check_password(password):
-                    print("пароль правильный")
                     return HttpResponse("passwordRight")
                 else :
-                    print("пароль не правильный")
                     return HttpResponse("passwordWrong")
 
                
@@ -156,11 +154,18 @@ def get_ChatJson(request):
 
 
 
-def get_messagesByChat_ID(request):
+def Get_MessagesByChat_ID(request):
 
 
     if request.method == "POST":
-        chat = Chat.objects.all()
+
+        chat_id_str  = request.POST.get("chat_id")
+        chat_id = int(chat_id_str) + 1
+
+        print(chat_id)
+
+
+        chat = Chat.objects.get(pk=chat_id)
 
         mesArr = []
 
@@ -168,12 +173,12 @@ def get_messagesByChat_ID(request):
         for mes in chat.messages.all():
             MesData = {}
 
-            MesData["author"] = mes.autor
+            MesData["author"] = mes.autor.username
             MesData["text"] = mes.text
             mesArr.append(MesData)
 
         
-        JsonData = json.dumps(chatsList)        
+        JsonData = json.dumps(mesArr)        
 
 
         return HttpResponse(JsonData, content_type="application/json")
