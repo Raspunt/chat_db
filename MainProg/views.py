@@ -42,29 +42,47 @@ def create_message(request):
         text = request.POST.get("text")
 
 
-        if username == "" and text == "" and chat_id == "":    
-            return HttpResponse("параменты username,text пустые ")
-
-
-
-        if User.objects.filter(username=username).exists() :
+        try:     
 
             user = User.objects.get(username=username)
-
 
             message = Message(autor=user,text=text)
             message.save()
 
-            # Chat.messages.add(message)
 
-            return HttpResponse("сообщение готово")
-
-
-
-        else :
+            chat_id_int = int(chat_id) + 1
+            current_chat = Chat.objects.get(pk=chat_id_int)
             
+            current_chat.messages.add(message)
             
-            return HttpResponse(f"создать пользователя? \nusername {username} ")
+            # оптравляет последнее сообщение обратно
+            MesData = {}
+            MesData["username"] = username
+            MesData["text"] = text
+
+            hour = message.date.hour
+            minute = message.date.minute
+            MesData["date"] =  f"{hour}:{minute}"
+
+
+
+
+                    
+            
+            JsonData = json.dumps(MesData)  
+            return HttpResponse(JsonData, content_type="application/json")
+
+
+
+
+        except Chat.DoesNotExist as e:
+        
+            return HttpResponse(e)
+
+        except User.DoesNotExist as e:
+            return HttpResponse(e)
+
+
 
     elif (request.method == "GET"):
         return HttpResponse("GET запрос")
@@ -175,6 +193,11 @@ def Get_MessagesByChat_ID(request):
 
             MesData["author"] = mes.autor.username
             MesData["text"] = mes.text
+
+            hour = mes.date.hour
+            minute = mes.date.minute
+
+            MesData["date"] =  f"{hour}:{minute}"
             mesArr.append(MesData)
 
         
@@ -185,9 +208,11 @@ def Get_MessagesByChat_ID(request):
 
 
 
-def startThread(request):
 
-    startUpdateNewsThread()
+
+# def startThread(request):
+
+#     startUpdateNewsThread()
 
 
 

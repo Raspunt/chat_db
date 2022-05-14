@@ -5,9 +5,9 @@ from django.contrib.auth.models import User
 
 class Message(models.Model):
     
-    autor = models.ForeignKey(User,on_delete=models.CASCADE)
-    text = models.TextField()
-    date = models.DateTimeField(auto_now=True)
+    autor = models.ForeignKey(User,on_delete=models.CASCADE,blank=True, null=True)
+    text = models.TextField(blank=True, null=True)
+    date = models.DateTimeField(auto_now=True,blank=True, null=True)
 
     def __str__(self):
         return self.autor.username
