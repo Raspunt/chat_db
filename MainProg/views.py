@@ -1,16 +1,22 @@
 import json
 import datetime 
+import asyncio
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.core import serializers
 from django.contrib.auth.models import User
 
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
 from . models import Message
 from . models import Chat
 
 from . parserNews.News import startUpdateNewsThread
 from . parserNews.News import pwdJson
+from   additional_func import json_funcs
+
+
 
 
 
@@ -64,10 +70,7 @@ def create_message(request):
             minute = message.date.minute
             MesData["date"] =  f"{hour}:{minute}"
 
-
-
-
-                    
+             
             
             JsonData = json.dumps(MesData)  
             return HttpResponse(JsonData, content_type="application/json")
@@ -180,28 +183,8 @@ def Get_MessagesByChat_ID(request):
         chat_id_str  = request.POST.get("chat_id")
         chat_id = int(chat_id_str) + 1
 
-        print(chat_id)
 
-
-        chat = Chat.objects.get(pk=chat_id)
-
-        mesArr = []
-
-
-        for mes in chat.messages.all():
-            MesData = {}
-
-            MesData["author"] = mes.autor.username
-            MesData["text"] = mes.text
-
-            hour = mes.date.hour
-            minute = mes.date.minute
-
-            MesData["date"] =  f"{hour}:{minute}"
-            mesArr.append(MesData)
-
-        
-        JsonData = json.dumps(mesArr)        
+        JsonData = json_funcs.GetJsonChatMessagesById(chat_id)        
 
 
         return HttpResponse(JsonData, content_type="application/json")
