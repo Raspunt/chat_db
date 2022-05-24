@@ -1,9 +1,7 @@
-import asyncio
 import json
-from tokenize import group
+from datetime import datetime 
 from django.http import HttpResponse
 from django.http import JsonResponse
-from django.core import serializers
 from django.contrib.auth.models import User
 
 from django.db import IntegrityError
@@ -14,12 +12,10 @@ from channels.layers import get_channel_layer
 from . models import Message
 from . models import Chat
 
-from . parserNews.News import startUpdateNewsThread
 from . parserNews.News import pwdJson
 from   additional_func import json_funcs
 
 
-from WebSocketSender.consumers import ChatConsumer
 
 
 
@@ -130,6 +126,8 @@ def create_userPost(request):
 
     if request.method == "POST":
 
+        
+
         username = request.POST.get("username")
         password = request.POST.get("password")
 
@@ -216,6 +214,8 @@ def Get_MessagesByChat_ID(request):
 
     if request.method == "POST":
 
+        print(request.POST)
+
         chat_id_str  = request.POST.get("chat_id")
         chat_id = int(chat_id_str) + 1
 
@@ -227,6 +227,32 @@ def Get_MessagesByChat_ID(request):
 
 
 
+def CreateChatAndReturnThem(request):
+
+    if request.method == "POST":
+
+        title = request.POST.get("title")
+        disc = request.POST.get("disc")
+
+        Chat.objects.create(title=title,disc=disc)
+        
+        chats = Chat.objects.all()
+        
+        list_chats = []
+
+        for ch in chats:
+
+            list_chats.append({
+            "title":ch.title,
+            "disc":ch.disc
+            })
+
+
+        jsonData = json.dumps(list_chats)
+        
+
+
+        return HttpResponse(jsonData, content_type="application/json")
 
 
 # def startThread(request):
